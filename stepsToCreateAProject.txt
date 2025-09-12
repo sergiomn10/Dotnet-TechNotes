@@ -1,0 +1,110 @@
+// 1 Crear capas de Clean Architecture
+
+	.Application
+	.Domain
+	.Infrastructure
+
+// 2 Asignar dependencias entre proyectos
+
+	Presentation(Principal) => Infrastructure
+	Application		=> Domain
+	Infrastructure 		=> Application
+
+// 3 Instalar nuget package "Microsoft.Extensions.DependencyInjection.Abstractions" en la capa de Application
+	
+	Microsoft.Extensions.DependencyInjection.Abstractions
+
+// 4 Agregar clase estatica DependencyInjection para configurar la inyeccion de las interfaces 
+
+	public static IServiceCollection AddApplication(this IServiceCollection services)
+    {
+        services.AddScoped<INoteService, NoteService>();
+        return services;
+    }
+
+// 5  Agregar la clase estatica de DependencyInjection en el program.cs para poder hacer las migraciones a la DB
+
+	builder.Services.AddApplication(); // se coloca debajo de builder.Services.AddRazorComponents().AddInteractiveServerComponents();
+
+
+
+// 6 Agregar clase ApplicationDbContext en capa Infrastruture
+
+	ApplicationDbContext.cs
+
+
+
+// 7 Instalar nuget package "EntityFrameworkCore" en Infrastructure
+
+	Microsoft.EntityFrameworkCore
+
+// 8 Agregar cadena de conexion en el appsettings.json
+
+"ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=TechNotesDb;User ID=SA;Password=MyStrongPass123;TrustServerCertificate=true;MultipleActiveResultSets=true"
+  },
+
+
+// 9 Instalar nuget package "EntityFrameworkCore.SqlServer" en Infrastructure
+
+	Microsoft.EntityFrameworkCore.SqlServer
+
+// 10 Agregar clase estatica DependencyInjection para configurar las migraciones de la DB en Infrastructure
+
+
+public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    { ...
+
+// 11 Agregar la clase estatica de DependencyInjection en el program.cs para poder hacer las migraciones a la DB
+
+builder.Services.AddInfrastructure(builder.Configuration); // se coloca debajo de builder.Services.AddApplication();
+
+
+// 12 Instalar nuget package "Microsoft.EntityFrameworkCore.Tools" en Infrastructure
+
+	Microsoft.EntityFrameworkCore.Tools
+
+
+// 13 Iniciar una migracion de DB moviendose a la carpeta Infrastructure
+
+	cd ProjectName.Infrastructure
+
+// 14 Ejecutar el comando para agregar una migracion 
+
+	dotnet ef migrations add CreateTableNotes
+
+// 15 Ejecutar el siguiente comando, Si sale este warning (The Entity Framework tools version '9.0.8' is older than that of the runtime '9.0.9'. Update the tools for the latest features and bug fixes. See https://aka.ms/AAc1fbw for more information.)
+
+	dotnet tool update --global dotnet-ef
+
+// 16 Actualizar la clase ApplicationDbContext.cs, Si sale este error (Unable to create a 'DbContext' of type 'RuntimeType'. The exception 'Unable to resolve service for type 'Microsoft.EntityFrameworkCore.DbContextOptions' while attempting to activate 'TechNotes.Infrastructure.ApplicationDbContext'.' was thrown while attempting to create an instance. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728)
+
+	public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    	{
+    	}
+
+// 17 Crear clase ApplicationDbContextFactory en infrastructure , Si sale este error (Unable to create a 'DbContext' of type 'RuntimeType'. The exception 'Unable to resolve service for type 'Microsoft.EntityFrameworkCore.DbContextOptions`1[TechNotes.Infrastructure.ApplicationDbContext]' while attempting to activate 'TechNotes.Infrastructure.ApplicationDbContext'.' was thrown while attempting to create an instance. For the different patterns supported at design time, see https://go.microsoft.com/fwlink/?linkid=851728)
+
+
+public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<ApplicationDbContext>
+{
+    public ApplicationDbContext CreateDbContext(string[] args)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<ApplicationDbContext>();
+        optionsBuilder.UseSqlServer(
+            "Server=localhost;Database=TechNotesDb;User ID=SA;Password=MyStrongPass123;TrustServerCertificate=true;MultipleActiveResultSets=true"
+            , b => b.MigrationsAssembly("TechNotes.Infrastructure"));
+
+        return new ApplicationDbContext(optionsBuilder.Options);
+    }
+}
+	
+
+// 18 Ya creada la migracion se necesita reflejar los datos en DB y antes de ejecutar el comando levantar el contenedor de docker
+
+	dotnet ef database update
+
+// 19 Actualizar las cadenas de conexion agregando el puerto en el sever local, Si sale este error (Login failed for user 'SA'.) o verificar bien la cadena de conexion
+
+ "DefaultConnection": "Server=localhost,1433;Database=TechNotesDb; ....
+
