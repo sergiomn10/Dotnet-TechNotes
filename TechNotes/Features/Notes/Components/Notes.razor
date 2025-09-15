@@ -1,12 +1,13 @@
 ﻿@page "/notes"
+
+
 @attribute [StreamRendering]
-@inject INoteService NoteService;
-@using System.Threading.Tasks
-@using TechNotes.Application.Notes
-@using TechNotes.Domain.Notes
+
+@inject ISender Sender;
 
 <PageTitle>Notas</PageTitle>
 <h3>Notas</h3>
+<a href="/note-editor" class="btn btn-primary">Crear nota</a>
 @if(notes.Count == 0)
 {
     <p>Cargando las notas...</p>
@@ -21,11 +22,11 @@ else{
 }
 
 @code {
-    private List<Note> notes = new List<Note>();
+    private List<NoteResponse> notes = new List<NoteResponse>();
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(1000);
-        var result = await NoteService.GetAllNotesAsync();
+        var result = await Sender.Send(new GetNotesQuery());
         if(result is not null)
         {
             notes = result.ToList();
