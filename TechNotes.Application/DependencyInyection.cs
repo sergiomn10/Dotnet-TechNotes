@@ -8,7 +8,11 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddScoped<INoteService, NoteService>();
+        services.AddMediatR(configuration =>
+        {
+            configuration.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly); // se agrega esta inyeccion para poder utilizar el patron mediador con CQRS
+        });
+        // services.AddScoped<INoteService, NoteService>(); // se elimino este servicio porque se sustituye con el patron mediador
         return services;
     }
 }

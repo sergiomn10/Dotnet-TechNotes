@@ -1,3 +1,9 @@
+NOTA: 	{
+ 		Los cambios se suben en cd Fullstack,
+		La ejecucion de la app se hace en la capa de presentacion (cd TechNotes)
+	}
+
+
 // 1 Crear capas de Clean Architecture
 
 	.Application
@@ -108,3 +114,22 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
 
  "DefaultConnection": "Server=localhost,1433;Database=TechNotesDb; ....
 
+
+// 20  Instalar nuget package "MediatR" para usar el patron Mediador con CQRS en Application 
+
+	MediatR 
+
+// 21 Agregar la inyeccion de mediator en la clase de DependencyInjection en Application
+	
+	public static IServiceCollection AddApplication(this IServiceCollection services)
+    {
+        services.AddMediatR(configuration =>
+        {
+            configuration.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+        });
+        services.AddScoped<INo  ...
+
+
+// 22 Instalar nuget package "Mapster" en Application
+
+	Mapster
