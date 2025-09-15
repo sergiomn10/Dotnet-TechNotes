@@ -133,3 +133,10 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
 // 22 Instalar nuget package "Mapster" en Application
 
 	Mapster
+
+// 23 Restructurar carpetas de la capa principal (presentacion )
+
+	-Crear carpeta Features y agregar dentro los componentes con responsabilidad unica por carpeta (Components,.Model)
+	-Crear carpeta Page y agregar Home.Razor
+	-Crear carpeta Shared y agregar Error, MainLayout, NavMenu .razor
+	-Colocar en capa principal los archivos App.razor, Routes, _imports . razor
