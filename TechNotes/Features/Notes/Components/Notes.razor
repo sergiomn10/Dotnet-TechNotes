@@ -1,6 +1,13 @@
 ﻿@page "/notes"
 
 
+@* La línea @attribute [StreamRendering] en un componente Blazor indica que el componente usará renderizado por streaming. 
+    Esto permite que el contenido del componente se envíe al navegador en fragmentos a medida que se va generando, 
+    en lugar de esperar a que todo el componente esté listo. Es útil para mejorar la experiencia de usuario en componentes 
+    que realizan operaciones asincrónicas o cargan datos, mostrando contenido parcial más rápido. 
+    Esta característica está disponible en Blazor Server y Blazor WebAssembly a partir de .NET 8. *@
+
+
 @attribute [StreamRendering]
 
 @inject ISender Sender;
@@ -8,9 +15,13 @@
 <PageTitle>Notas</PageTitle>
 <h3>Notas</h3>
 <a href="/note-editor" class="btn btn-primary">Crear nota</a>
-@if (notes.Count == 0)
+@if (notes == null)
 {
     <p>Cargando las notas...</p>
+}
+else if (notes.Count == 0)
+{
+    <p>No hay notas disponibles</p>
 }
 else
 {
@@ -24,14 +35,14 @@ else
 }
 
 @code {
-    private List<NoteResponse> notes = new List<NoteResponse>();
+    private List<NoteResponse>? notes = new List<NoteResponse>();
     protected override async Task OnInitializedAsync()
     {
         await Task.Delay(1000);
         var result = await Sender.Send(new GetNotesQuery());
         if (result is not null)
         {
-            notes = result.ToList();
+            notes = result.IsSuccessful ? result : new List<NoteResponse>();
         }
     }
 }

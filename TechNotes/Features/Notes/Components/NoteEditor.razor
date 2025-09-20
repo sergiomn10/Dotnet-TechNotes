@@ -40,8 +40,11 @@ else
     }
 }
 
+<span class="text-danger">@errorMessage</span>
+
 @code {
     private bool IsEditMode => NoteId != null;
+    private string errorMessage = string.Empty;
 
     [SupplyParameterFromForm]
     private NoteModel? Note { get; set; }
@@ -53,19 +56,24 @@ else
         if (NoteId is not null)
         {
             var result = await Sender.Send(new GetNoteByIdQuery { Id = (int)NoteId });
-            if (result is not null)
+            if (result.IsSuccessful)
             {
                 /*
                 Se agregan dos ?? para indicar que solo cuando Note sea null le asigne los datos de result.
                 Para que no obtenga los datos nuevamente cuando se hace submit y se pierdan los datos editados.
                 */
-                Note ??= result.Adapt<NoteModel>();
+                Note ??= result.Value.Adapt<NoteModel>();
                 Note.Id = (int)NoteId;
             }
             else
             {
-                Note ??= new(); // hace una nueva instancia de Note si es que esta NULL.
+                SetErrorMessage(result.ErrorMessage);
             }
+
+        }
+        else
+        {
+            Note ??= new(); // hace una nueva instancia de Note si es que esta NULL.
         }
     }
 
@@ -75,32 +83,45 @@ else
         {
             var command = Note.Adapt<UpdateNoteCommand>();
             var result = await Sender.Send(command);
-            if (result is not null)
+            if (result.IsSuccessful)
             {
-                Note = result.Adapt<NoteModel>();
+                Note = result.Value.Adapt<NoteModel>();
+                Console.WriteLine("Nota actualizada satisfactoriamente");
+                NavigationManager.NavigateTo("/notes");
             }
-            Console.WriteLine("Nota actualizada satisfactoriamente");
+            else
+            {
+                SetErrorMessage(result.ErrorMessage);
+            }
         }
         else
         {
 
             var command = Note.Adapt<CreateNoteCommand>();
             var result = await Sender.Send(command);
-            Note = result.Adapt<NoteModel>();
-            Console.WriteLine("Nota creada satisfactoriamente");
+            if (result.IsSuccessful)
+            {
+
+                Note = result.Adapt<NoteModel>();
+                Console.WriteLine("Nota creada satisfactoriamente");
+            }
+            else
+            {
+                SetErrorMessage(result.ErrorMessage);
+            }
         }
     }
 
     private async Task DeleteNote()
     {
-        if(NoteId is null)
+        if (NoteId is null)
         {
             return;
         }
 
-        var command = new DeleteNoteCommand {Id = (int)NoteId};
-        var isSuccess = await Sender.Send(command);
-        if(isSuccess)
+        var command = new DeleteNoteCommand { Id = (int)NoteId };
+        var result = await Sender.Send(command);
+        if (result.IsSuccessful)
         {
             Console.WriteLine("Nota eliminada satisfactoriamente");
             NavigationManager.NavigateTo("/notes");
@@ -108,7 +129,11 @@ else
         else
         {
             Console.WriteLine("Sucedio un error al elimiinar una nota.");
-
         }
+    }
+
+    private void SetErrorMessage(string? error)
+    {
+        errorMessage = error ?? string.Empty;
     }
 }
