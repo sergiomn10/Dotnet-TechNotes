@@ -140,3 +140,19 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
 	-Crear carpeta Page y agregar Home.Razor
 	-Crear carpeta Shared y agregar Error, MainLayout, NavMenu .razor
 	-Colocar en capa principal los archivos App.razor, Routes, _imports . razor
+
+// 24 Agregar la clase generica Result.cs en Domain para el manejo de retorno de datos mas abstracto entre las clases y capas
+
+	Abstractions/Result.cs
+
+// 25 Agregar las interfaces para Implementar la clase generica Result con el patron MediatR, en query y Command
+
+	Abstractions/RequestHandling/ICommand.cs
+	Abstractions/RequestHandling/ICommandHandler.cs
+	Abstractions/RequestHandling/IQuery.cs
+	Abstractions/RequestHandling/IQueryHandler.cs
+
+// 26 Implementar las interfases genericas, en las clases Command y Query en Application
+
+	public class CreateNoteCommand : ICommand<NoteResponse> ...
+	public class GetNoteByIdQuery : IQuery<NoteResponse?> ...

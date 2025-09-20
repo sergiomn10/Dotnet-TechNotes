@@ -1,11 +1,7 @@
-using System;
-using MediatR;
-using TechNotes.Domain.Notes;
-
-
 namespace TechNotes.Application.Notes.GetNotes;
 
-public class GetNotesQuery : IRequest<List<NoteResponse>>
+// se puede utilizar de esta manera IRequest<Result<List<NoteResponse>>> pero se hara con conversion implicita, en la clase Result 
+public class GetNotesQuery : IQuery<List<NoteResponse>>
 {
 
 }
