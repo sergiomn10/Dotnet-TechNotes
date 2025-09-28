@@ -156,3 +156,25 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
 
 	public class CreateNoteCommand : ICommand<NoteResponse> ...
 	public class GetNoteByIdQuery : IQuery<NoteResponse?> ...
+
+// 27 Instalar Tailwind CSS (en la carpeta del proyecto Blazor) donde se debe tener instalado Node.js y npm.
+	Seguir esta guia de connfiguracion https://gist.github.com/pazteddy/d839253de6e930e9383822b13c16c430 o 
+	https://tailwindcss.com/
+
+	npm install tailwindcss @tailwindcss/cli
+
+// 28  Tener en una termianl siempre ejecutando el siguiente comando mientras se ajustan los estilos con Tailwind 
+       para que mantenga actualizado el css automatico con los ultimos cambios agregados
+ 
+	
+	npx tailwindcss -i ./Styles/input.css -o ./wwwroot/tailwind.css --watch
+
+// 29 Se utilizo el siguiente prompt para pedir a la IA del chat de VScode ajuste los estilos del formulario editar
+
+	"
+		Por favor cambia los estilos para que el formulario visualmente sea lo mas profesional posible,
+		pero siguiendo los lineamientos de estos componentes:
+		https://www.hyperui.dev/
+		Por favor no utilices estilos personalizados, solo los de Tailwind
+
+"
