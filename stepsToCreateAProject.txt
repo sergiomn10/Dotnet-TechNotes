@@ -178,3 +178,39 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
 		Por favor no utilices estilos personalizados, solo los de Tailwind
 
 "
+
+// 30  Agregar el paquete de identity para hacer las autenticaciones en la capa de Infrastructure
+
+	"Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.9"
+
+// 31 Agregar el paquete de identity.UI para hacer las autenticaciones en la capa de Infrastructure
+
+	"Microsoft.AspNetCore.Identity.UI" Version="9.0.9"
+
+
+//  32  Despues de haber agregado el User en domain e infra, se debe cambiar el dbcontext por IdentityDbContext 
+		en la clase de ApplicationDbContext en infra y posteriormente hacer una migracion de la DB
+
+	namespace TechNotes.Infrastructure;
+
+    public class ApplicationDbContext : IdentityDbContext<User>
+
+
+//  33 Agragar la clase BlazorAuthorizationMiddlewareResultHandler y su inyeccion de dependencia para que redireccione 
+		al contenido que agreguemos en el Routes.razor cuando entren a una pagina no autorizada y no muestra la pantalla fea de NotFound
+
+		public class BlazorAuthorizationMiddlewareResultHandler : IAuthorizationMiddlewareResultHandler
+		{
+    		public Task HandleAsync(RequestDelegate next, HttpContext context, AuthorizationPolicy policy, PolicyAuthorizationResult authorizeResult)
+    		{
+       			 return next(context);
+    		}
+		}
+
+		...
+
+		   services.AddSingleton<IAuthorizationMiddlewareResultHandler, BlazorAuthorizationMiddlewareResultHandler>();
+
+// 34 Agregar el paquete de Authentication Google para hacer las autenticaciones con los cuentas de Google
+
+		"Microsoft.AspNetCore.Authentication.Google"

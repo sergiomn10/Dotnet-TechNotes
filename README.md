@@ -3,7 +3,7 @@
 </p>
 
 
-# Creación de un nuevo proyecto con Blazor en .NET 9 (TechNotes)
+# Creación de un nuevo proyecto con Blazor en .NET 9 (TechNotes), autenticacion con Identity y Google.
 
 Proyecto Fullstack con Clean Architecture (.NET)
 
@@ -15,6 +15,19 @@ TechNotes/                  # Capa de Presentación (Web, UI)
 TechNotes.Application/      # Capa de Aplicación (Servicios, lógica de negocio)
 TechNotes.Domain/           # Capa de Dominio (Entidades, interfaces)
 TechNotes.Infrastructure/   # Capa de Infraestructura (Persistencia, EF Core, Repositorios)
+```
+
+## Autenticacion con Google
+
+Configurar el appsettings.json con el ClientId y ClientSecret obtenidas en https://console.cloud.google.com/auth.
+```json
+  "Authentication":
+  {
+    "Google": {
+      "ClientId":"obtenTuAPIen:https://console.cloud.google.com/auth",
+      "ClientSecret":"obtenTuAPIen:https://console.cloud.google.com/auth"
+    }
+  }
 ```
 
 ## Instalación de Paquetes

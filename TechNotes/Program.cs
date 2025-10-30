@@ -1,3 +1,6 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Identity;
 using TechNotes;
 using TechNotes.Application;
 using TechNotes.Features.Notes.Services;
@@ -9,9 +12,52 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddControllers();
+// para configurar el protection state 
+builder.Services.AddDataProtection().SetApplicationName("TechNotes");
+// para configurar las politicas de cockies de autenticacion
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.CheckConsentNeeded = context => false;
+    options.MinimumSameSitePolicy = SameSiteMode.Unspecified;
+});
+
+// para las opciones de cookies dentro de la aplicacion
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // politica de seguridad
+    options.Cookie.SameSite = SameSiteMode.Lax; // para protegerse de ataques de sesion de CSRF
+    options.Cookie.Name = "TechNotes.Auth";
+});
+
+// para asegurar funcione la cookie y  en dev
+builder.Services.PostConfigure<CookieAuthenticationOptions>(IdentityConstants.ExternalScheme, options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // politica de seguridad
+    options.Cookie.SameSite = SameSiteMode.Lax; // para protegerse de ataques de sesion de CSRF    
+});
+
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddScoped<INoteColorService, NoteColorService>();
+
+builder.Services.AddAuthentication().AddGoogle(googleOptions =>
+{
+    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"] ?? "";
+    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"] ?? "";
+    googleOptions.CallbackPath = "/signin-google";
+    googleOptions.SignInScheme = IdentityConstants.ExternalScheme;
+    googleOptions.SaveTokens = true;
+
+    googleOptions.CorrelationCookie.HttpOnly = true;
+    googleOptions.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    googleOptions.CorrelationCookie.SameSite = SameSiteMode.Lax;
+
+    googleOptions.Scope.Add("email");
+    googleOptions.Scope.Add("profile");
+});
 
 var app = builder.Build();
 
@@ -25,10 +71,12 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseCookiePolicy();
 
 app.UseAntiforgery();
 
 app.MapStaticAssets();
+app.MapControllers();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 

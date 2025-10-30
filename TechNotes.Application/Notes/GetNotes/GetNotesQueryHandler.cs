@@ -1,16 +1,35 @@
+using TechNotes.Domain.User;
+
 namespace TechNotes.Application.Notes.GetNotes;
 
-public class GetNotesQueryHandler : IQueryHandler<GetNotesQuery, List<NoteResponse>>
+public class GetNotesQueryHandler(INoteRepository _noteRepository, IUserRepository _userRepository) : IQueryHandler<GetNotesQuery, List<NoteResponse>>
 {
-    private readonly INoteRepository _noteRepository;
+    // private readonly INoteRepository _noteRepository;
 
-    public GetNotesQueryHandler(INoteRepository noteRepository)
-    {
-        _noteRepository = noteRepository;
-    }
+    // public GetNotesQueryHandler(INoteRepository noteRepository)
+    // {
+    //     _noteRepository = noteRepository;
+    // }
     public async Task<Result<List<NoteResponse>>> Handle(GetNotesQuery request, CancellationToken cancellationToken)
     {
         var notes = await _noteRepository.GetAllNotesAsync();
-        return notes.Adapt<List<NoteResponse>>(); // con ayuda de la libreria Mapster se hace el mapeo automatico al modelo deseado.
+        var response = new List<NoteResponse>();
+        foreach (var note in notes)
+        {
+            var noteResponse = note.Adapt<NoteResponse>();
+            if (note.UserId != null)
+            {
+                var noteAuthor = await _userRepository.GetUserByIdAsync(note.UserId);
+                noteResponse.UserName = noteAuthor?.UserName ?? "Desconocido";
+            }
+            else
+            {
+                noteResponse.UserName = "Desconocido";
+            }
+
+            response.Add(noteResponse);
+        }
+        // return notes.Adapt<List<NoteResponse>>(); // con ayuda de la libreria Mapster se hace el mapeo automatico al modelo deseado.
+        return response.OrderByDescending(note => note.PublishedAt).ToList();
     }
 }

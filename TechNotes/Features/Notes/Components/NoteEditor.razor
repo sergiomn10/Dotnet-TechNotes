@@ -2,8 +2,10 @@
 @page "/note-editor/{NoteId:int}"
 
 
+@attribute [Authorize]
 @inject ISender Sender
 @inject NavigationManager NavigationManager
+@inject UserManager<User> UserManager
 
 @if (IsEditMode && Note is not null)
 {
@@ -19,13 +21,16 @@ else
     <div class="mx-auto max-w-screen-xl px-4 py-8">
         <div class="bg-white rounded-lg shadow-lg p-8">
             <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold text-gray-900">
+                <p class="text-2xl font-bold text-gray-900">
                     @(IsEditMode ? $"Editando: {Note.Title}" : "Crear nueva nota")
-                </h2>
-                <a href="/notes" 
-                   class="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-colors">
+                    <span class="ml-2 inline-block">- Autor: @Note.UserName</span>
+                </p>
+                <a href="/notes"
+                    class="inline-flex items-center gap-2 rounded-lg bg-gray-100 px-4 py-2 text-gray-700 hover:bg-gray-200 hover:text-gray-900 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                        <path fill-rule="evenodd"
+                            d="M7.707 14.707a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l2.293 2.293a1 1 0 010 1.414z"
+                            clip-rule="evenodd" />
                     </svg>
                     Volver
                 </a>
@@ -34,35 +39,32 @@ else
             <EditForm Model="Note" OnSubmit="HandleSubmit" FormName="NoteEditorForm" class="space-y-4">
                 <div class="space-y-2">
                     <label class="text-sm font-medium text-gray-700">Título</label>
-                    <InputText @bind-Value="Note.Title" 
-                              placeholder="Ingresa el título de la nota" 
-                              class="w-full rounded-lg border border-gray-300 p-3 text-gray-700 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring" />
+                    <InputText @bind-Value="Note.Title" placeholder="Ingresa el título de la nota"
+                        class="w-full rounded-lg border border-gray-300 p-3 text-gray-700 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring" />
                 </div>
 
                 <div class="space-y-2">
                     <label class="text-sm font-medium text-gray-700">Contenido</label>
-                    <InputTextArea @bind-Value="Note.Content" 
-                                 placeholder="Escribe el contenido de tu nota aquí..." 
-                                 rows="5" 
-                                 class="w-full rounded-lg border border-gray-300 p-3 text-gray-700 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring" />
+                    <InputTextArea @bind-Value="Note.Content" placeholder="Escribe el contenido de tu nota aquí..." rows="5"
+                        class="w-full rounded-lg border border-gray-300 p-3 text-gray-700 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring" />
                 </div>
 
                 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div class="space-y-2">
                         <label class="text-sm font-medium text-gray-700">Fecha de publicación</label>
-                        <InputDate @bind-Value="Note.PublishedAt" 
-                                 class="w-full rounded-lg border border-gray-300 p-3 text-gray-700 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring" />
+                        <InputDate @bind-Value="Note.PublishedAt"
+                            class="w-full rounded-lg border border-gray-300 p-3 text-gray-700 shadow-sm transition focus:border-blue-500 focus:outline-none focus:ring" />
                     </div>
 
                     <div class="flex items-center space-x-2">
-                        <InputCheckbox @bind-Value="Note.IsPublished" 
-                                     class="h-5 w-5 rounded border-gray-300 focus:ring-2 focus:ring-blue-500" />
+                        <InputCheckbox @bind-Value="Note.IsPublished"
+                            class="h-5 w-5 rounded border-gray-300 focus:ring-2 focus:ring-blue-500" />
                         <label class="text-sm font-medium text-gray-700">Publicar nota</label>
                     </div>
                 </div>
 
-                <button type="submit" 
-                        class="w-full rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                <button type="submit"
+                    class="w-full rounded-lg bg-blue-600 px-5 py-3 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
                     @(IsEditMode ? "Guardar cambios" : "Crear nota")
                 </button>
             </EditForm>
@@ -70,8 +72,8 @@ else
             @if (IsEditMode)
             {
                 <form @onsubmit="DeleteNote" @formname="DeleteNoteForm" method="POST" class="mt-6">
-                    <button type="submit" 
-                            class="w-full rounded-lg bg-red-600 px-5 py-3 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
+                    <button type="submit"
+                        class="w-full rounded-lg bg-red-600 px-5 py-3 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition-colors">
                         Eliminar nota
                     </button>
                     <AntiforgeryToken />
@@ -80,7 +82,7 @@ else
         </div>
     </div>
 }
-}
+
 
 <span class="text-danger">@errorMessage</span>
 
@@ -92,6 +94,8 @@ else
     private NoteModel? Note { get; set; }
     [Parameter]
     public int? NoteId { get; set; }
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default;
     //este override se invoca cuando el componente ha ricibido parametros de su elemento primario
     protected override async Task OnParametersSetAsync()
     {
@@ -140,12 +144,14 @@ else
         {
 
             var command = Note.Adapt<CreateNoteCommand>();
+            command.UserId = UserManager.GetUserId(HttpContext.User);
             var result = await Sender.Send(command);
             if (result.IsSuccessful)
             {
 
                 Note = result.Adapt<NoteModel>();
                 Console.WriteLine("Nota creada satisfactoriamente");
+                NavigationManager.NavigateTo("/notes");
             }
             else
             {
