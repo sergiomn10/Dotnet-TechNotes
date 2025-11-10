@@ -2,7 +2,7 @@
 @page "/note-editor/{NoteId:int}"
 
 
-@attribute [Authorize]
+@attribute [Authorize(Roles = "Admin, Writer")]
 @inject ISender Sender
 @inject NavigationManager NavigationManager
 @inject UserManager<User> UserManager
@@ -144,11 +144,9 @@ else
         {
 
             var command = Note.Adapt<CreateNoteCommand>();
-            command.UserId = UserManager.GetUserId(HttpContext.User);
             var result = await Sender.Send(command);
             if (result.IsSuccessful)
             {
-
                 Note = result.Adapt<NoteModel>();
                 Console.WriteLine("Nota creada satisfactoriamente");
                 NavigationManager.NavigateTo("/notes");
