@@ -214,3 +214,9 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
 // 34 Agregar el paquete de Authentication Google para hacer las autenticaciones con los cuentas de Google
 
 		"Microsoft.AspNetCore.Authentication.Google"
+
+// 35 Agregar el paquete de  Microsoft.AspNetCore.Components.QuickGrid en capa de presentacion
+	Para proporcionar un componente de cuadrícula de datos conveniente, 
+	simple y flexible para desarrolladores de Blazor con las necesidades más comunes
+
+	"Microsoft.AspNetCore.Components.QuickGrid" Version="9.0.9"
