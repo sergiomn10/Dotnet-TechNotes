@@ -220,3 +220,75 @@ public class ApplicationDbContextFactory : IDesignTimeDbContextFactory<Applicati
 	simple y flexible para desarrolladores de Blazor con las necesidades más comunes
 
 	"Microsoft.AspNetCore.Components.QuickGrid" Version="9.0.9"
+
+// 36 Agregar el paquete de WebAssembly.Server para hacer la app que se ejecute de lado del cliente codigo c#
+
+		"Microsoft.AspNetCore.Components.WebAssembly.Server" Version="9.0.9"
+
+// 37 Agregar en el inicio del codigo de Program.cs .AddInteractiveWebAssemblyComponents() para que permita cargar componentes compilados con WebAssam...
+
+	builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents()
+    .AddInteractiveWebAssemblyComponents();
+
+// 38  Agregar en el fin del codigo de Program.cs .AddInteractiveWebAssemblyRenderMode()() para que permita cargar componentes compilados con WebAssam...
+
+	app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode()
+    .AddInteractiveWebAssemblyRenderMode();
+
+
+////////////////////////////// Pasos para crear el proyecto Client de Web Assembly ///////////////////////////////////
+
+//  39 Al crear proyecto 
+	-Indicar nombre TechNotes.Client
+	-Default directory
+	-Antes del Clic en create project se debe editar opciones desmarcar indicando false en Include sample pages 
+
+// 40 Eliminar paquete Microsoft.AspNetCore.Components.WebAssembly.DevServer del nuevo proyecto client 
+		en clic derecho sobre el paquete y Remove NuGet package
+
+	Microsoft.AspNetCore.Components.WebAssembly.DevServer
+
+// 41 Eliminar todos los items del proyecto Client y solo quedarse con 
+
+	Program.cs 
+	_imports.razor
+
+// 42 Dentro del Program.cs del proyecto client eliminar las siguientes dos lineas 
+
+	builder.RootComponents.Add<App>("#app");
+	builder.RootComponents.Add<HeadOutlet>("head::after");
+
+// 43 En el archivo _imports.razor del proyecto client agregar y eliminar una linea 
+
+	Agregar 
+		@using static Microsoft.AspNetCore.Components.Web.RenderMode
+
+	Eliminar 
+		@using TechNotes.Client.Layout
+
+// 44 En el proyecto de la capa de presentacion TechNotes agregar nueva dependencia de Client
+
+	-Clic derecho en TechNotes y seleccionar Add Project Reference
+	-Seleccionar el proyecto de TechNotes.Client
+
+// 45 Agregar AddAdditionalAssemblies(typeof(TechNotes.Client._Imports).Assembly) 
+	para que puedan funcionar los componentes WebAssembly , una vez que se tenga la estructura en el proyecto de Client
+
+	app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode()
+    .AddInteractiveWebAssemblyRenderMode()
+    .AddAdditionalAssemblies(typeof(TechNotes.Client._Imports).Assembly);
+
+// 46 En el proyecto de la capa de  TechNotes.Client agregar nueva dependencia de Application
+
+	-Clic derecho en TechNotes.Client y seleccionar Add Project Reference
+	-Seleccionar el proyecto de TechNotes.Application
+
+// 47 Agregar el paquete de  Microsoft.AspNetCore.Components.QuickGrid en capa de TechNotes.Client
+	Para proporcionar un componente de cuadrícula de datos conveniente, 
+	simple y flexible para desarrolladores de Blazor con las necesidades más comunes
+
+	"Microsoft.AspNetCore.Components.QuickGrid" Version="9.0.9"
+
