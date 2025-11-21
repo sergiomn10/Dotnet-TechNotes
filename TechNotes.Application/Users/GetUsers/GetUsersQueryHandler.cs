@@ -1,5 +1,4 @@
 using System;
-using MediatR;
 using TechNotes.Domain.User;
 
 namespace TechNotes.Application.Users.GetUsers;

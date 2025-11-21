@@ -1,5 +1,4 @@
 using System;
-using MediatR;
 using TechNotes.Application.Authentication;
 
 namespace TechNotes.Application.Users.RegisterUser;
